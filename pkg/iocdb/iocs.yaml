@@ -1,0 +1,122 @@
+# chainsaw IOC database
+# Each campaign entry contains malicious packages (with two hash slots) and
+# indicators (domains, paths, user-agents, emails, pth filenames).
+#
+# Per-package hash fields:
+#   shasum    — 40-hex SHA1 from npm registry dist.shasum (tarball identity)
+#   integrity — sha512-<base64> SRI format from package-lock.json / npm _cacache content-v2
+# Both are optional but at least one should be populated for cache matching.
+
+campaigns:
+
+  - id: axios-unc1069
+    description: >
+      UNC1069 (suspected DPRK) compromised npm maintainer account jasonsaayman
+      and published malicious axios versions with a plain-crypto-js dependency
+      whose postinstall hook deployed a cross-platform RAT. Dropper deleted
+      itself and swapped package.json after execution. March 2026.
+
+    packages:
+      - ecosystem: npm
+        name: axios
+        version: "1.14.1"
+        shasum: "2553649f232204966871cea80a5d0d6adc700ca"       # verify against VM reproduction
+        integrity: ""                                           # sha512-<base64> — verify against VM reproduction
+
+      - ecosystem: npm
+        name: axios
+        version: "0.30.4"
+        shasum: "d6f3f62fd3b9f5432f5782b62d8cfd5247d5ee71"     # verify against VM reproduction
+        integrity: ""                                           # sha512-<base64> — verify against VM reproduction
+
+      - ecosystem: npm
+        name: plain-crypto-js
+        version: "4.2.1"
+        shasum: "07d889e2dadce6f3910dcbc253317d28ca61c766"     # verify against VM reproduction
+        integrity: ""                                           # sha512-<base64> — verify against VM reproduction
+
+    indicators:
+      - id: unc1069-domain-sfrclak
+        type: domain
+        value: sfrclak.com
+        description: "UNC1069 C2 domain contacted by plain-crypto-js RAT dropper"
+
+      - id: unc1069-ua-msie
+        type: ua
+        value: "mozilla/4.0 (compatible; msie 8.0; windows nt 5.1; trident/4.0)"
+        description: "Malicious user-agent string used in C2 beacon traffic"
+
+      - id: unc1069-path-macos
+        type: path
+        platform: macos
+        value: "/Library/Caches/com.apple.act.mond"
+        description: "macOS persistence binary dropped by plain-crypto-js postinstall hook"
+
+      - id: unc1069-path-linux
+        type: path
+        platform: linux
+        value: "/tmp/ld.py"
+        description: "Linux persistence script dropped by plain-crypto-js postinstall hook"
+
+      - id: unc1069-path-windows
+        type: path
+        platform: windows
+        value: '%TEMP%\6202033.ps1'
+        description: "Windows persistence PowerShell script dropped by plain-crypto-js postinstall hook"
+
+      - id: unc1069-email-ifstap
+        type: email
+        value: ifstap@proton.me
+        description: "Attacker ProtonMail address associated with UNC1069 npm account activity"
+
+      - id: unc1069-email-nrwise
+        type: email
+        value: nrwise@proton.me
+        description: "Attacker ProtonMail address associated with UNC1069 npm account activity"
+
+
+  - id: litellm-teampcp
+    description: >
+      TeamPCP compromised Trivy GitHub Action in LiteLLM's CI pipeline,
+      stole PyPI publish token, and published litellm versions containing
+      a malicious litellm_init.pth file that executes on every Python startup
+      via the .pth import_exec mechanism. March 2026.
+
+    packages:
+      - ecosystem: pypi
+        name: litellm
+        version: "1.82.7"
+        integrity: ""
+
+      - ecosystem: pypi
+        name: litellm
+        version: "1.82.8"
+        integrity: ""
+
+    indicators:
+      - id: teampcp-domain-litellm-cloud
+        type: domain
+        value: models.litellm.cloud
+        description: "TeamPCP C2 / exfil domain masquerading as legitimate LiteLLM infrastructure"
+
+      - id: teampcp-domain-checkmarx
+        type: domain
+        value: checkmarx.zone
+        description: "TeamPCP C2 domain mimicking Checkmarx security tooling"
+
+      - id: teampcp-path-sysmon-py
+        type: path
+        platform: linux
+        value: "~/.config/sysmon/sysmon.py"
+        description: "Python persistence script installed by litellm_init.pth payload"
+
+      - id: teampcp-path-sysmon-service
+        type: path
+        platform: linux
+        value: "~/.config/systemd/user/sysmon.service"
+        description: "systemd user service for persistence, installed alongside sysmon.py"
+
+      - id: teampcp-pth-litellm-init
+        type: pth
+        value: litellm_init.pth
+        description: "Malicious .pth file injected into system site-packages; executes on every Python startup via import_exec line"
