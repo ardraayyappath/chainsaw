@@ -14,7 +14,19 @@ Research prototype. Under active development.
 - cross-artifact correlation
 
 ## Usage
-(minimal example)
+Chainsaw connects to a target host over SSH, collects package-manager and host
+artifacts, and writes an HTML and JSON report.
+
+```bash
+go build ./cmd/chainsaw
+
+./chainsaw \
+  --user eval \
+  --key ~/chainsaw-eval/keys/eval_key \
+  --port 2201 \
+  --ecosystem all \
+  --output out \
+  127.0.0.1
 
 ## Disclaimer
 For authorized forensic use only.
